@@ -9,9 +9,10 @@ import android.support.annotation.NonNull;
 import android.view.MotionEvent;
 import android.view.View;
 
-/** Title Screen
- *  Created by MickalC on 9/30/2015.
- */
+/** ************************************
+ * Title Screen
+ *  Created by Micahel Canfield on 9/30/2015.
+ ****************************************/
 
 public class TitleView extends View {
 

@@ -8,6 +8,8 @@ import android.graphics.Bitmap;
 public class Card {
     private int id; //card id ex. deuce of diamonds = 102
     private Bitmap bitmap;
+    private int suit;
+    private int rank;
 
     /**
      * Constructor takes in the unique if for the card. Diamonds(100),
@@ -15,7 +17,9 @@ public class Card {
      * @param newID card id
      */
     public Card(int newID){
-        id = newID;// contructor takes in the unique id for the card
+        id = newID;// constructor takes in the unique id for the card
+        suit = Math.round((id / 100) * 100); //rounds id to nearest hundred to get suit
+        rank = id - suit;
     }// end constructor
 
     /**
@@ -41,5 +45,15 @@ public class Card {
     public int getId() {
         return id;
     }// end method getID
+
+    //get suit of card
+    public int getSuit() {
+        return suit;
+    }// end method getSuit
+
+    //get rank of card
+    public int getRank() {
+        return rank;
+    }// end method getRank
 
 }// end class Card

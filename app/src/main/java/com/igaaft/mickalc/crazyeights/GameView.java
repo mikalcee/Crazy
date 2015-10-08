@@ -42,6 +42,19 @@ public class GameView  extends View {
 
     private int oppScore; //opponent's score
     private int myScore; //user's score
+    private int movingCardIdx = -1; //keeps track of the index of the card that being moved
+    private int movingX; //keeps track of the x value of the user finger on the screen
+    private int movingY; //keeps track of the y value of the user finger on the screen
+
+    private boolean myTurn; //keeps track of player's turn
+
+    /**
+     * Custom view GameView is the main game playing screen. This screen
+     * contains the scores, opponent's playing cards, user playing cards,
+     * and discard card pile.
+     * @param context GameActivity's context (interface to global
+     *                information about an application environment
+     */
 
     public GameView(Context context) {
         super(context);
@@ -75,6 +88,14 @@ public class GameView  extends View {
         whitePaint.setStyle(Paint.Style.STROKE);
         whitePaint.setTextAlign(Paint.Align.LEFT); //sets the paint's text alignment.
         whitePaint.setTextSize(scale * 15); //sets the paint's text size.
+
+       //myTurn = new Random().nextBoolean(); //returns a random boolean true or false
+
+        /************************* FOR TEST PURPOSES ONLY *********************************/
+
+        myTurn = true;
+
+        /**********************************************************************************/
     }// end constructor
 
     /**************************************************************
@@ -217,7 +238,7 @@ public class GameView  extends View {
          * is half the screen height minus half the height of the card image
          ******************************************************************************/
         canvas.drawBitmap(cardBack, (screenW / 2) - cardBack.getWidth() - 10,
-                (screenH / 2) - (cardBack.getHeight() / 2), null );
+                (screenH / 2) - (cardBack.getHeight() / 2), null);
 
         /***********************************************************************************
          * check to see if discard pile has cards, if it does display a card bitmap graphic
@@ -228,6 +249,27 @@ public class GameView  extends View {
             canvas.drawBitmap(discardPile.get(0).getBitmap(), (screenW / 2) + 10,
                     (screenH / 2) - (cardBack.getHeight() / 2), null);
         }// end if
+
+        for (int i = 0; i < myHand.size(); i++){
+            /*************************************************************************
+             * Check to see whether the index of a given card in your hand matches
+             * the movingCardIdx. If so, draw the card at the current x, y positions
+             * of the player's finger.
+             **************************************************************************/
+            if (i == movingCardIdx){
+                canvas.drawBitmap(myHand.get(i).getBitmap(), movingX, movingY, null);
+            }// end if
+            /***************************************************************************
+             * If the movingCardIdx doesn't match any index values for cards in your
+             * hand (for example when it's -1), you draw the rest of your hand as
+             * you did before
+             ****************************************************************************/
+            else{
+                canvas.drawBitmap(myHand.get(i).getBitmap(), i * (scaledCardH + 5),
+                                   screenH - scaledCardH - whitePaint.getTextSize() -
+                                           (50 * scale), null);
+            }// end else
+        }// end for
 
     }// end method onDraw
 
@@ -245,12 +287,57 @@ public class GameView  extends View {
 
         switch (action) {
             case MotionEvent.ACTION_DOWN:
+                /**********************************************************
+                 * If users turn, loop through the first seven cards
+                 * in the player's hand, and check to see whether the
+                 * player has touched the screen on a card that's being
+                 * displayed. if so, you assign the index of that card to
+                 * the method movingCardIdx as well as to the current x
+                 * and y positions to the movingX and movingY variables.
+                 * A offset of 30 pixel to the left and a 70 pixel offset
+                 * up. This centers the image at the point of touch. The
+                 * vertical offset is used so that the user can see the
+                 * rank and suit of the card as it moves.
+                 ***********************************************************/
+                if (myTurn){
+                    for (int i = 0; i < 7; i++){
+                        if (x_pos > i * (scaledCardH + 5) &&
+                            x_pos < i * (scaledCardH + 5) + scaledCardH &&
+                            y_pos > screenH - scaledCardH - whitePaint.getTextSize() -
+                            (50 * scaledCardH)){
+                            movingCardIdx = i;
+                            movingX = x_pos;
+                            movingY = y_pos;
+
+                            //movingX = x_pos - (int)(30 * scale);
+                            //movingY = y_pos -(int)(70 * scale);
+                        }// end if
+                    }// end for
+                }// end if
                 break;
 
             case MotionEvent.ACTION_MOVE:
+                /****************************************************************
+                 * As the player moves their finger across the screen, you keep
+                 * track of the x and y. You use this information when drawing
+                 * the bitmap for the card being moved. A offset of 30 pixel to
+                 * the left and a 70 pixel offset up. This centers the image at
+                 * the point of touch. The vertical offset is used so that the
+                 * user can see the rank and suit of the card as it moves.
+                 *****************************************************************/
+                movingX = x_pos;
+                movingY = y_pos;
+
+                //movingX = x_pos - (int)(30 * scale);
+                //movingY = y_pos -(int)(70 * scale);
                 break;
 
             case MotionEvent.ACTION_UP:
+                /******************************************************************
+                 * When a player lifts the finger from the screen, you reset the
+                 * movingCardIdx to indicate that no cards are moved
+                 *******************************************************************/
+                movingCardIdx = -1;
                 break;
         }// end switch
 
@@ -297,7 +384,8 @@ public class GameView  extends View {
 
                 /**************************************************************
                  * Java provided utility function for collections to randomize
-                 * (shuffle) the order of the list.
+                 * (shuffle) the order of the list, the static method shuffle
+                 * is used
                  **************************************************************/
 
                 Collections.shuffle(deck, new Random());
@@ -308,8 +396,9 @@ public class GameView  extends View {
     }// end method drawCard
 
     /***********************************************************************************
-     * dealCards uses the Collections method to move every element of the list (deck)
-     * to a random new position in the list using the specified random number generator.
+     * dealCards uses class Collections static method shuffle to move every element of
+     * the list (deck)to a random new position in the list using the specified random
+     * number generator.
      * Parameters
      ************************************************************************************/
 
